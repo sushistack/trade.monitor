@@ -1,0 +1,48 @@
+# Coin configurations
+coins:
+  - symbol: "ETHUSDT"
+    display_name: "ETH"
+    upload_host: "192.168.0.20"
+  - symbol: "XRPUSDT"
+    display_name: "XRP"
+    upload_host: "192.168.0.21"
+  - symbol: "SOLUSDT"
+    display_name: "SOL"
+    upload_host: "192.168.0.22"
+
+# Chart settings
+chart:
+  width: 240
+  height: 240
+  style: "tradingview"
+  jpeg_quality: 85
+
+# Upload settings
+upload:
+  timeout: 30.0
+  retries: 3
+  dir: "/image/"
+
+# Timeframes to generate
+# 1D = Last 24 hours (hourly candles)
+# 1M = Last 30 days (daily candles)
+timeframes:
+  - code: "1D"
+    interval: "1h"
+    limit: 24
+  - code: "1M"
+    interval: "1d"
+    limit: 30
+
+# Logging
+logging:
+  level: "INFO"
+  file: "logs/trade_monitor.log"
+
+# AWTRIX3 settings
+awtrix:
+  enabled: true
+  host: "192.168.0.23"
+  app_name: "bitcoin"
+  icon: "10814"
+  color: [255, 153, 0]

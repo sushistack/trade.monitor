@@ -1,0 +1,27 @@
+```py
+import requests
+import json
+
+def push_btc_price():
+    try:
+        # 1. Binance 또는 Upbit API (Binance 기준)
+        url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
+        res = requests.get(url, timeout=5).json()
+        price = float(res['price'])
+
+        # 2. AWTRIX3 페이로드 (텍스트 최적화: 105.4k 형태 등)
+        payload = {
+            "text": f"{price/1000:,.1f}k", 
+            "icon": "10814", # 비트코인 아이콘 ID
+            "color": [255, 153, 0]
+        }
+
+        # 3. 로컬 네트워크의 AWTRIX3 IP로 전송
+        # 기기 IP는 iptime 설정이나 기기 화면에서 확인 가능
+        requests.post("http://192.168.0.23/api/custom?name=bitcoin", json=payload)
+    except Exception as e:
+        pass # 로컬 실행이므로 로그 생략 가능
+
+if __name__ == "__main__":
+    push_btc_price()
+```

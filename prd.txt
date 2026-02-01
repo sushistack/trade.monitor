@@ -1,0 +1,42 @@
+### upload
+
+```sh
+curl 'http://192.168.0.20/doUpload?dir=/image/' \
+  -X POST \
+  -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Accept-Encoding: gzip, deflate' \
+  -H 'X-Requested-With: XMLHttpRequest' \
+  -H 'Content-Type: multipart/form-data; boundary=----geckoformboundary81a33b598874b54e4b2e6f546fe8098b' \
+  -H 'Origin: http://192.168.0.20' \
+  -H 'Connection: keep-alive' \
+  -H 'Referer: http://192.168.0.20/image.html' \
+  --data-binary \
+  $'------geckoformboundary81a33b598874b54e4b2e6f546fe8098b\r\nContent-Disposition: form-data; name="file"; filename="test-images.jpg"\r\nContent-Type: image/jpeg\r\n\r\n------geckoformboundary81a33b598874b54e4b2e6f546fe8098b--\r\n'
+```
+
+### delete
+
+```
+curl 'http://192.168.0.20/delete?file=%2Fimage%2F%2Ftest-images.jpg' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Accept-Encoding: gzip, deflate' \
+  -H 'Connection: keep-alive' \
+  -H 'Referer: http://192.168.0.20/image.html' \
+  -H 'Priority: u=0'
+```
+
+1. Ubuntu24.04
+2. 스크립트를 이용할 것
+3. trading view 혹은 바이낸스 실시간 데이터를 조회할 것
+4. 3번 데이터를 기반으로 tradingview 스타일로 1일 차트 2일 차트 이미지를 생성할 것
+5. 이미지 크기는 240x240px 로 만들것.
+6. 업로드 주소는 http://192.168.0.20 ~ 22
+7. 각각 20: 이더리움(ETH), 21(XRP): 리플, 22(SOL): 솔라나 데이터를 가져올 것
+8. 20: [ETH_1D.jpg, ETH_1M.jpg], 21: [XRP_1D.jpg, XRP_1M.jpg], 22: [SOL_1D.jpg, SOL_1M.jpg] 파일을 업로드
+9: cron 등 관리하기 쉬운 것으로 주기적으로 동작 시킨다. 매 1분마다
+10. python 으로 만들 것
+11. venv 로 진행할 것
