@@ -2,13 +2,13 @@
 coins:
   - symbol: "ETHUSDT"
     display_name: "ETH"
-    upload_host: "192.168.0.20"
+    upload_host: "miner-eth"
   - symbol: "XRPUSDT"
     display_name: "XRP"
-    upload_host: "192.168.0.21"
+    upload_host: "miner-xrp"
   - symbol: "SOLUSDT"
     display_name: "SOL"
-    upload_host: "192.168.0.22"
+    upload_host: "miner-sol"
 
 # Chart settings
 chart:
@@ -42,7 +42,7 @@ logging:
 # AWTRIX3 settings
 awtrix:
   enabled: true
-  host: "192.168.0.23"
+  host: "ulanzi"
   app_name: "bitcoin"
   icon: "10814"
   color: [255, 153, 0]

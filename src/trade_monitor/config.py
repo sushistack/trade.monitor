@@ -25,7 +25,7 @@ class UploadConfig(BaseModel):
 
 class AwtrixConfig(BaseModel):
     enabled: bool = False
-    host: str = "192.168.0.23"
+    host: str = "ulanzi"
     app_name: str = "bitcoin"
     icon: str = "10814"
     color: list[int] = [255, 153, 0]
