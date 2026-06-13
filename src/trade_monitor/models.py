@@ -10,6 +10,7 @@ class OHLCVData:
     display_name: str
     interval: str
     data: pd.DataFrame  # Columns: Open, High, Low, Close, Volume with DatetimeIndex
+    currency: str = "USDT"
     fetched_at: datetime = field(default_factory=datetime.utcnow)
 
 @dataclass

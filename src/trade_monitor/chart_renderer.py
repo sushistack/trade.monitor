@@ -132,7 +132,7 @@ class ChartRenderer:
 
             left_padding = 10
 
-            title_text = f"{data.display_name} / USDT ({timeframe_code})"
+            title_text = f"{data.display_name} / {data.currency} ({timeframe_code})"
             draw.text((left_padding, 5), title_text, fill="#d1d4dc", font=font_title)
 
             price_str = f"{c_val:,.4f}" if c_val < 10 else f"{c_val:,.2f}"

@@ -9,6 +9,7 @@ import structlog
 from .config import load_settings, Settings
 from .models import CycleResult
 from .binance_client import BinanceClient
+from .yahoo_client import YahooClient
 from .chart_renderer import ChartRenderer
 from .uploader import ImageUploader
 from .awtrix_client import AwtrixClient
@@ -66,15 +67,19 @@ def run_cycle(settings: Settings) -> CycleResult:
 
     # Initialize components
     binance = BinanceClient()
+    yahoo = YahooClient()
     renderer = ChartRenderer(settings.chart)
     uploader = ImageUploader(settings.upload)
     awtrix = AwtrixClient(settings.awtrix)
 
     if settings.awtrix.enabled:
         try:
-            btc_price = binance.get_ticker_price("BTCUSDT")
-            awtrix.push_price(btc_price)
-            logger.info("awtrix_update_success", price=btc_price)
+            if settings.awtrix.ticker:
+                price = yahoo.get_ticker_price(settings.awtrix.ticker)
+            else:
+                price = binance.get_ticker_price("BTCUSDT")
+            awtrix.push_price(price)
+            logger.info("awtrix_update_success", price=price)
         except Exception as e:
             logger.error("awtrix_update_failed", error=str(e))
 
@@ -82,64 +87,42 @@ def run_cycle(settings: Settings) -> CycleResult:
     error_count = 0
     errors: list[str] = []
 
-    # Process each coin
-    for coin in settings.coins:
-        logger.info("processing_coin", coin=coin.display_name)
-
-        # Fetch and render for each timeframe
+    def process_asset(symbol, display_name, upload_host, fetch_fn):
+        nonlocal success_count, error_count
         for tf in settings.timeframes:
             try:
-                # Fetch data
-                logger.debug("fetch_start", symbol=coin.symbol, timeframe=tf.code)
-
-                data = binance.get_ohlcv(
-                    symbol=coin.symbol,
-                    display_name=coin.display_name,
+                logger.debug("fetch_start", symbol=symbol, timeframe=tf.code)
+                data = fetch_fn(
+                    symbol=symbol,
+                    display_name=display_name,
                     interval=tf.interval,
                     limit=tf.limit,
                 )
-
-                # Render chart
-                logger.debug("render_start", symbol=coin.symbol, timeframe=tf.code)
-
+                logger.debug("render_start", symbol=symbol, timeframe=tf.code)
                 chart = renderer.render(data, tf.code)
-
-                # Upload
-                logger.debug(
-                    "upload_start", host=coin.upload_host, filename=chart.full_filename
-                )
-
-                result = uploader.upload(coin.upload_host, chart)
-
+                logger.debug("upload_start", host=upload_host, filename=chart.full_filename)
+                result = uploader.upload(upload_host, chart)
                 if result.success:
                     success_count += 1
-                    logger.info(
-                        "chart_success",
-                        coin=coin.display_name,
-                        timeframe=tf.code,
-                        host=coin.upload_host,
-                    )
+                    logger.info("chart_success", symbol=display_name, timeframe=tf.code, host=upload_host)
                 else:
                     error_count += 1
-                    error_msg = f"{coin.display_name}_{tf.code}: {result.error}"
-                    errors.append(error_msg)
-                    logger.error(
-                        "chart_failed",
-                        coin=coin.display_name,
-                        timeframe=tf.code,
-                        error=result.error,
-                    )
-
+                    errors.append(f"{display_name}_{tf.code}: {result.error}")
+                    logger.error("chart_failed", symbol=display_name, timeframe=tf.code, error=result.error)
             except Exception as e:
                 error_count += 1
-                error_msg = f"{coin.display_name}_{tf.code}: {str(e)}"
-                errors.append(error_msg)
-                logger.error(
-                    "processing_error",
-                    coin=coin.display_name,
-                    timeframe=tf.code,
-                    error=str(e),
-                )
+                errors.append(f"{display_name}_{tf.code}: {str(e)}")
+                logger.error("processing_error", symbol=display_name, timeframe=tf.code, error=str(e))
+
+    # Process crypto coins (Binance)
+    for coin in settings.coins:
+        logger.info("processing_coin", coin=coin.display_name)
+        process_asset(coin.symbol, coin.display_name, coin.upload_host, binance.get_ohlcv)
+
+    # Process stocks/indexes (Yahoo Finance)
+    for stock in settings.stocks:
+        logger.info("processing_stock", stock=stock.display_name)
+        process_asset(stock.symbol, stock.display_name, stock.upload_host, yahoo.get_ohlcv)
 
     duration_ms = (time.time() - start_time) * 1000
 

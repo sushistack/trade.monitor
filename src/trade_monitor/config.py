@@ -10,6 +10,12 @@ class CoinConfig(BaseModel):
     upload_host: str
 
 
+class StockConfig(BaseModel):
+    symbol: str       # Yahoo Finance symbol, e.g. "^GSPC"
+    display_name: str
+    upload_host: str
+
+
 class ChartConfig(BaseModel):
     width: int = 240
     height: int = 240
@@ -29,6 +35,7 @@ class AwtrixConfig(BaseModel):
     app_name: str = "bitcoin"
     icon: str = "10814"
     color: list[int] = [255, 153, 0]
+    ticker: str = ""  # Yahoo Finance symbol to display (empty = use Binance BTC)
 
 
 class TimeframeConfig(BaseModel):
@@ -44,6 +51,7 @@ class LoggingConfig(BaseModel):
 
 class Settings(BaseModel):
     coins: list[CoinConfig]
+    stocks: list[StockConfig] = Field(default_factory=list)
     chart: ChartConfig = Field(default_factory=ChartConfig)
     upload: UploadConfig = Field(default_factory=UploadConfig)
     awtrix: AwtrixConfig = Field(default_factory=AwtrixConfig)

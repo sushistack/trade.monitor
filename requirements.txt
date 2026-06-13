@@ -8,3 +8,4 @@ pydantic-settings==2.6.1
 PyYAML==6.0.2
 structlog==24.4.0
 python-crontab==3.2.0
+yfinance>=1.4.1

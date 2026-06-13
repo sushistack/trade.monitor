@@ -3,7 +3,8 @@ import logging
 import time
 from typing import Optional
 
-import httpx
+import requests
+from requests.exceptions import RequestException, Timeout
 
 from .config import UploadConfig
 from .models import ChartImage, UploadResult
@@ -17,7 +18,6 @@ class ImageUploader:
     def __init__(self, config: UploadConfig):
         """Initialize uploader with configuration."""
         self.config = config
-        self.timeout = httpx.Timeout(config.timeout)
 
     def upload(
         self,
@@ -46,15 +46,11 @@ class ImageUploader:
                     'file': (filename, image.image_bytes, 'image/jpeg')
                 }
 
-                with httpx.Client(timeout=self.timeout) as client:
-                    response = client.post(
-                        url,
-                        files=files,
-                        headers={
-                            'Accept': '*/*',
-                            'Connection': 'keep-alive',
-                        }
-                    )
+                response = requests.post(
+                    url,
+                    files=files,
+                    timeout=self.config.timeout,
+                )
 
                 duration_ms = (time.time() - start_time) * 1000
 
@@ -75,21 +71,16 @@ class ImageUploader:
                         f"Upload failed (attempt {attempt + 1}): {last_error}"
                     )
 
-            except httpx.TimeoutException as e:
-                last_error = f"Timeout: {e}"
-                logger.warning(
-                    f"Upload timeout (attempt {attempt + 1}): {host}"
-                )
-            except httpx.RequestError as e:
+            except Timeout:
+                last_error = "Timeout"
+                logger.warning(f"Upload timeout (attempt {attempt + 1}): {host}")
+            except RequestException as e:
                 last_error = f"Request error: {e}"
-                logger.warning(
-                    f"Upload error (attempt {attempt + 1}): {e}"
-                )
+                logger.warning(f"Upload error (attempt {attempt + 1}): {e}")
 
             # Exponential backoff
             if attempt < self.config.retries - 1:
-                wait_time = 2 ** attempt
-                time.sleep(wait_time)
+                time.sleep(2 ** attempt)
 
         duration_ms = (time.time() - start_time) * 1000
         logger.error(f"Failed to upload {filename} to {host}: {last_error}")

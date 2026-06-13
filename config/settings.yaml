@@ -1,14 +1,26 @@
-# Coin configurations
+# Coin configurations (Binance)
 coins:
+  - symbol: "BTCUSDT"
+    display_name: "BTC"
+    upload_host: "crypto-btc"
   - symbol: "ETHUSDT"
     display_name: "ETH"
-    upload_host: "miner-eth"
+    upload_host: "crypto-eth"
   - symbol: "XRPUSDT"
     display_name: "XRP"
-    upload_host: "miner-xrp"
+    upload_host: "crypto-xrp"
   - symbol: "SOLUSDT"
     display_name: "SOL"
-    upload_host: "miner-sol"
+    upload_host: "crypto-sol"
+  - symbol: "DOGEUSDT"
+    display_name: "DOGE"
+    upload_host: "crypto-doge"
+
+# Stock/index configurations (Yahoo Finance)
+stocks:
+  - symbol: "^GSPC"
+    display_name: "SP500"
+    upload_host: "stock-snp500"
 
 # Chart settings
 chart:
@@ -39,10 +51,11 @@ logging:
   level: "INFO"
   file: "logs/trade_monitor.log"
 
-# AWTRIX3 settings
+# AWTRIX3 settings (ulanzi)
 awtrix:
   enabled: true
   host: "ulanzi"
-  app_name: "bitcoin"
-  icon: "10814"
-  color: [255, 153, 0]
+  app_name: "nasdaq"
+  icon: "47"
+  color: [0, 200, 100]
+  ticker: "^IXIC"
