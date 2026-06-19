@@ -16,11 +16,13 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/src \
     CONFIG_PATH=/config/settings.yaml
 
-# ponytail: matplotlib/pandas/numpy/Pillow ship self-contained manylinux wheels, so the only
-# system libs needed are libgomp1 (numpy/scipy openmp) + ca-certs (TLS to Binance/Yahoo/LaMetric)
-# + tzdata (Asia/Seoul). Add a .so here only if a runtime ImportError ever shows up.
+# libgomp1 (numpy/scipy openmp) + ca-certs (TLS to Binance/Yahoo/LaMetric) + tzdata (Asia/Seoul).
+# 🔴 fonts-dejavu-core is REQUIRED, not optional: chart_renderer.py draws the title/price/change text
+# with PIL ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20/24/18). Without
+# the system TTF at that exact path, PIL falls back to ImageFont.load_default() (a ~10px bitmap) → the
+# on-device text renders tiny. (matplotlib bundles its OWN DejaVu, but PIL does not — it needs this pkg.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libgomp1 ca-certificates tzdata \
+        libgomp1 ca-certificates tzdata fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
